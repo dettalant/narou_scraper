@@ -1,0 +1,26 @@
+{
+  "name": "narou_scraper",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "prenarou_scraper": "yarn run build",
+    "narou_scraper": "./bin/narou_scraper"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.17",
+    "@types/jest-environment-puppeteer": "^4.3.0",
+    "@types/puppeteer": "^1.19.1",
+    "jest": "^24.9.0",
+    "jest-puppeteer": "^4.3.0",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.5.3"
+  },
+  "dependencies": {
+    "puppeteer": "^1.19.0"
+  }
+}
