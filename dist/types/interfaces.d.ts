@@ -11,8 +11,7 @@ export interface NovelEpisodeData {
  */
 export interface NovelData {
     ncode: string;
-    beginEpisode: number;
-    endEpisode: number;
+    episodes: number[];
     data: NovelEpisodeData[];
 }
 /**

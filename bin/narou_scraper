@@ -1,2 +1,7 @@
 #!/usr/bin/env node
-require("../dist/index.js");
+const narouScraper = require("../dist/index.js");
+
+(async () => {
+  const nData = await narouScraper.run("n7682fj", 1, 3);
+  console.log(nData);
+})()

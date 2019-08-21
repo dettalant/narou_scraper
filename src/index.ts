@@ -1,8 +1,11 @@
+import fs from "fs";
 import puppeteer from "puppeteer";
 import {
   initPage,
   closePage,
   sleep,
+  print_log,
+  range,
 } from "./utils";
 import {
   NovelData,
@@ -99,19 +102,49 @@ const scrapeNovel = async (page: puppeteer.Page, nApiJson: NarouApiNovelData, be
 
   return {
     ncode,
-    beginEpisode,
-    endEpisode,
-    data
+    data,
+    episodes: range(beginEpisode, endEpisode),
   }
 }
 
-(async () => {
-  const page = await initPage();
-  const ncode = "n8061es"
-  const nApiJson = await getNarouApiJson(page, ncode);
-  const nData = await scrapeNovel(page, nApiJson, 190, 192);
+/**
+ * キャッシュファイルを読み取る関数
+ * 読み取れた場合はその旨を標準出力に出して、ファイルが存在しなかった場合もそれを出力する
+ * @param  path   キャッシュファイルの場所
+ * @return        読み取ったstring
+ */
+const readCache = (path: string): string => {
+  let result = "";
 
-  // TODO: ここでnDataを用いた処理を行う
+  try {
+    result = fs.readFileSync(path, "utf8");
+    print_log(`キャッシュファイル取得 ${path}`);
+  } catch (e) {
+    if (e.code === "ENOENT") {
+      print_log("新規読み込み");
+    } else {
+      throw e;
+    }
+  }
+
+  return result;
+}
+
+export const run = async (ncode: string, beginEp: number, endEp: number): Promise<NovelData> => {
+  const page = await initPage();
+  const nApiJson = await getNarouApiJson(page, ncode);
+
+  // TODO: キャッシュ処理をまた後で作る
+  // const cachePath = `${ncode}.json`;
+  // const cacheNData = readCache(cachePath);
+  // console.log(`ncode: ${ncode}, beginEp: ${beginEp}, endEp: ${endEp}`);
+  // console.log(cacheNData);
+
+  const nData = await scrapeNovel(page, nApiJson, beginEp, endEp);
+
+  // TODO: ここもキャッシュ処理用の部分
+  // fs.writeFileSync(cachePath, JSON.stringify(nData, null, 1));
 
   await closePage(page);
-})();
+  return nData
+}

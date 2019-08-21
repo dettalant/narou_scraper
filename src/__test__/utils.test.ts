@@ -1,6 +1,6 @@
 import {
   initPage,
-  closePage,
+  range,
   sleep,
 } from "../utils";
 
@@ -16,5 +16,10 @@ describe("utils function test", () => {
     const endDate = Date.now();
 
     expect(endDate - beginDate > 199).toBeTruthy();
+  })
+
+  it("range test", () => {
+    const result = range(7, 13);
+    expect(result).toEqual([7, 8, 9, 10, 11, 12, 13]);
   })
 })
