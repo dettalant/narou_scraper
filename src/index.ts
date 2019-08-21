@@ -130,7 +130,7 @@ const readCache = (path: string): string => {
   return result;
 }
 
-export const run = async (ncode: string, beginEp: number, endEp: number): Promise<NovelData> => {
+export const run = async (ncode: string, beginEp: number, endEp?: number): Promise<NovelData> => {
   const page = await initPage();
   const nApiJson = await getNarouApiJson(page, ncode);
 
