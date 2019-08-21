@@ -13,6 +13,10 @@ import {
   NarouApiNovelData
 } from "./interfaces";
 
+// ライブラリとして利用する側のために
+// interfaceをまとめてexportしておく
+export * from "./interfaces";
+
 /**
  * 小説家になろうAPIから小説情報を取り出してobjectとして返す
  * 取得できた情報から、一番初めの小説情報だけを返すことには注意
