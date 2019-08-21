@@ -75,6 +75,7 @@ const scrapeNovel = async (page, nApiJson, beginEpisode, endEpisode) => {
     }
     const data = [];
     for (let i = beginEpisode; i <= endEpisode; i++) {
+        utils_1.print_log(`${i}部分取得開始 ${i}/${endEpisode}`);
         const url = `https://ncode.syosetu.com/${ncode}/${i}/`;
         data.push(await scrapePage(page, url));
         // なろうのサーバーへの思いやりウェイトを取る

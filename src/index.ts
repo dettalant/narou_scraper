@@ -97,6 +97,7 @@ const scrapeNovel = async (page: puppeteer.Page, nApiJson: NarouApiNovelData, be
 
   const data: NovelEpisodeData[] = [];
   for (let i = beginEpisode; i <= endEpisode; i++) {
+    print_log(`${i}部分取得開始 ${i}/${endEpisode}`)
     const url = `https://ncode.syosetu.com/${ncode}/${i}/`;
     data.push(await scrapePage(page, url));
 
