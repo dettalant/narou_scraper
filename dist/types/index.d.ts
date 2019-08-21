@@ -1,2 +1,2 @@
 import { NovelData } from "./interfaces";
-export declare const run: (ncode: string, beginEp: number, endEp: number) => Promise<NovelData>;
+export declare const run: (ncode: string, beginEp: number, endEp?: number | undefined) => Promise<NovelData>;

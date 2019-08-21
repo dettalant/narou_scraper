@@ -6,7 +6,9 @@
   "license": "MIT",
   "private": true,
   "scripts": {
+    "clean": "find ./dist -maxdepth 1 ! -path ./dist | xargs -r rm -r",
     "build": "tsc",
+    "prebuild": "yarn run clean",
     "test": "jest",
     "prenarou_scraper": "yarn run build",
     "narou_scraper": "./bin/narou_scraper"
