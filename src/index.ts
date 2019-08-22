@@ -6,6 +6,7 @@ import {
   sleep,
   print_log,
   range,
+  roughlyNum,
 } from "./utils";
 import {
   NovelData,
@@ -96,7 +97,8 @@ const scrapeNovel = async (page: puppeteer.Page, ncode: string, beginEpisode: nu
     data.push(await scrapePage(page, url));
 
     // なろうのサーバーへの思いやりウェイトを取る
-    await sleep(1000);
+    const sleepMs = roughlyNum(1000);
+    await sleep(sleepMs);
   }
 
   return {

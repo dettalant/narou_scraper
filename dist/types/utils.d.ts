@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
 export declare const sleep: (ms: number) => Promise<Function>;
+export declare const roughlyNum: (num: number) => number;
 /**
  * Page objectの初期化処理
  * @return promiseで包まれたPage object

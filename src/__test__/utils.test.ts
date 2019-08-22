@@ -2,6 +2,7 @@ import {
   initPage,
   range,
   sleep,
+  roughlyNum,
 } from "../utils";
 
 describe("utils function test", () => {
@@ -21,5 +22,10 @@ describe("utils function test", () => {
   it("range test", () => {
     const result = range(7, 13);
     expect(result).toEqual([7, 8, 9, 10, 11, 12, 13]);
+  })
+
+  it("roughlyNum test", () => {
+    const result = roughlyNum(1000);
+    expect(result > 1000 && result < 2001).toBeTruthy();
   })
 })

@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const puppeteer_1 = __importDefault(require("puppeteer"));
 // 入力したミリセコンド秒数分ウェイトを取る
 exports.sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+// 同じ時間のウェイトだとボット臭すぎるので若干揺れ幅をつける関数
+exports.roughlyNum = (num) => num + num * Math.random();
 /**
  * Page objectの初期化処理
  * @return promiseで包まれたPage object

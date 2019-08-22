@@ -71,7 +71,8 @@ const scrapeNovel = async (page, ncode, beginEpisode, endEpisode) => {
         const url = `https://ncode.syosetu.com/${ncode}/${i}/`;
         data.push(await scrapePage(page, url));
         // なろうのサーバーへの思いやりウェイトを取る
-        await utils_1.sleep(1000);
+        const sleepMs = utils_1.roughlyNum(1000);
+        await utils_1.sleep(sleepMs);
     }
     return {
         ncode,

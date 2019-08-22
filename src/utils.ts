@@ -3,6 +3,9 @@ import puppeteer from "puppeteer";
 // 入力したミリセコンド秒数分ウェイトを取る
 export const sleep = (ms: number) => new Promise<Function>((res) => setTimeout(res, ms))
 
+// 同じ時間のウェイトだとボット臭すぎるので若干揺れ幅をつける関数
+export const roughlyNum = (num: number) => num + num * Math.random();
+
 /**
  * Page objectの初期化処理
  * @return promiseで包まれたPage object
@@ -40,4 +43,4 @@ export const print_log = (str: string) => {
  */
 export const range = (begin: number, end: number): number[] => {
   return [...Array(end - begin + 1)].map((_, i) => begin + i)
-} 
+}
