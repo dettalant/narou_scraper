@@ -55,3 +55,18 @@ export interface NarouApiNovelData {
   novelupdated_at: string;
   updated_at: string;
 }
+
+// narou_scraper.run()関数が要求する起動引数
+export interface InitArgs {
+  // 小説の管理コード
+  // これはCUI側処理の都合上含めてるだけなので無くてもよしとする
+  ncode?: string;
+  // 開始エピソード番号
+  beginEp: number;
+  // 終了エピソード番号
+  endEp: number;
+  // キャッシュを無視する設定値
+  isForce: boolean;
+  // 小説の全話数を読み取る設定値
+  isAll: boolean;
+}

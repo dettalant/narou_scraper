@@ -10,7 +10,8 @@ import {
 import {
   NovelData,
   NovelEpisodeData,
-  NarouApiNovelData
+  NarouApiNovelData,
+  InitArgs,
 } from "./interfaces";
 
 // ライブラリとして利用する側のために
@@ -83,16 +84,9 @@ const scrapePage = async (page: puppeteer.Page, url: string): Promise<NovelEpiso
  * @param endEpisode   最後に取得するエピソード番号（未指定ならばbeginEpisodeだけ取得）
  * @return             取得した小説情報のオブジェクト
  */
-const scrapeNovel = async (page: puppeteer.Page, nApiJson: NarouApiNovelData, beginEpisode: number, endEpisode?: number): Promise<NovelData> => {
-  const ncode = nApiJson.ncode.toLowerCase();
-  const maxEpisode = nApiJson.general_all_no;
-
-  if (beginEpisode > maxEpisode) {
-    [beginEpisode, endEpisode] = [maxEpisode, maxEpisode];
-  } else if (endEpisode === void 0 || beginEpisode > endEpisode) {
+const scrapeNovel = async (page: puppeteer.Page, ncode: string, beginEpisode: number, endEpisode?: number): Promise<NovelData> => {
+  if (endEpisode === void 0 || beginEpisode > endEpisode) {
     endEpisode = beginEpisode;
-  } else if (endEpisode > maxEpisode) {
-    endEpisode = maxEpisode;
   }
 
   const data: NovelEpisodeData[] = [];
@@ -135,9 +129,34 @@ const readCache = (path: string): string => {
   return result;
 }
 
-export const run = async (ncode: string, beginEp: number, endEp?: number): Promise<NovelData> => {
+export const run = async (ncode: string, initArgs?: InitArgs): Promise<NovelData> => {
+  // initArgsの存在確認と初期値設定
+  const args = (initArgs) ? initArgs : {
+    ncode: ncode,
+    // 開始エピソード番号
+    beginEp: 1,
+    // 終了エピソード番号
+    endEp: 1,
+    // キャッシュを無視する設定値
+    isForce: false,
+    // 小説の全話数を読み取る設定値
+    isAll: false,
+  }
+
   const page = await initPage();
   const nApiJson = await getNarouApiJson(page, ncode);
+  const maxEpisode = nApiJson.general_all_no;
+  if (args.isAll) {
+    // 全エピソードを読み込む場合
+    args.beginEp = 1;
+    args.endEp = maxEpisode;
+  } else if (args.beginEp > maxEpisode) {
+    // beginEpが最大値より大きい場合は最新エピソードのみ読み込む
+    [args.beginEp, args.endEp] = [maxEpisode, maxEpisode];
+  } else if (args.endEp > maxEpisode) {
+    // endEpが最大数より多いならば最大数に合わせる
+    args.endEp = maxEpisode;
+  }
 
   // TODO: キャッシュ処理をまた後で作る
   // const cachePath = `${ncode}.json`;
@@ -145,7 +164,7 @@ export const run = async (ncode: string, beginEp: number, endEp?: number): Promi
   // console.log(`ncode: ${ncode}, beginEp: ${beginEp}, endEp: ${endEp}`);
   // console.log(cacheNData);
 
-  const nData = await scrapeNovel(page, nApiJson, beginEp, endEp);
+  const nData = await scrapeNovel(page, ncode, args.beginEp, args.endEp);
 
   // TODO: ここもキャッシュ処理用の部分
   // fs.writeFileSync(cachePath, JSON.stringify(nData, null, 1));

@@ -61,17 +61,9 @@ const scrapePage = async (page, url) => {
  * @param endEpisode   最後に取得するエピソード番号（未指定ならばbeginEpisodeだけ取得）
  * @return             取得した小説情報のオブジェクト
  */
-const scrapeNovel = async (page, nApiJson, beginEpisode, endEpisode) => {
-    const ncode = nApiJson.ncode.toLowerCase();
-    const maxEpisode = nApiJson.general_all_no;
-    if (beginEpisode > maxEpisode) {
-        [beginEpisode, endEpisode] = [maxEpisode, maxEpisode];
-    }
-    else if (endEpisode === void 0 || beginEpisode > endEpisode) {
+const scrapeNovel = async (page, ncode, beginEpisode, endEpisode) => {
+    if (endEpisode === void 0 || beginEpisode > endEpisode) {
         endEpisode = beginEpisode;
-    }
-    else if (endEpisode > maxEpisode) {
-        endEpisode = maxEpisode;
     }
     const data = [];
     for (let i = beginEpisode; i <= endEpisode; i++) {
@@ -109,15 +101,41 @@ const readCache = (path) => {
     }
     return result;
 };
-exports.run = async (ncode, beginEp, endEp) => {
+exports.run = async (ncode, initArgs) => {
+    // initArgsの存在確認と初期値設定
+    const args = (initArgs) ? initArgs : {
+        ncode: ncode,
+        // 開始エピソード番号
+        beginEp: 1,
+        // 終了エピソード番号
+        endEp: 1,
+        // キャッシュを無視する設定値
+        isForce: false,
+        // 小説の全話数を読み取る設定値
+        isAll: false,
+    };
     const page = await utils_1.initPage();
     const nApiJson = await getNarouApiJson(page, ncode);
+    const maxEpisode = nApiJson.general_all_no;
+    if (args.isAll) {
+        // 全エピソードを読み込む場合
+        args.beginEp = 1;
+        args.endEp = maxEpisode;
+    }
+    else if (args.beginEp > maxEpisode) {
+        // beginEpが最大値より大きい場合は最新エピソードのみ読み込む
+        [args.beginEp, args.endEp] = [maxEpisode, maxEpisode];
+    }
+    else if (args.endEp > maxEpisode) {
+        // endEpが最大数より多いならば最大数に合わせる
+        args.endEp = maxEpisode;
+    }
     // TODO: キャッシュ処理をまた後で作る
     // const cachePath = `${ncode}.json`;
     // const cacheNData = readCache(cachePath);
     // console.log(`ncode: ${ncode}, beginEp: ${beginEp}, endEp: ${endEp}`);
     // console.log(cacheNData);
-    const nData = await scrapeNovel(page, nApiJson, beginEp, endEp);
+    const nData = await scrapeNovel(page, ncode, args.beginEp, args.endEp);
     // TODO: ここもキャッシュ処理用の部分
     // fs.writeFileSync(cachePath, JSON.stringify(nData, null, 1));
     await utils_1.closePage(page);

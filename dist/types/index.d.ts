@@ -1,3 +1,3 @@
-import { NovelData } from "./interfaces";
+import { NovelData, InitArgs } from "./interfaces";
 export * from "./interfaces";
-export declare const run: (ncode: string, beginEp: number, endEp?: number | undefined) => Promise<NovelData>;
+export declare const run: (ncode: string, initArgs?: InitArgs | undefined) => Promise<NovelData>;

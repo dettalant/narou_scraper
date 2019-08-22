@@ -50,3 +50,10 @@ export interface NarouApiNovelData {
     novelupdated_at: string;
     updated_at: string;
 }
+export interface InitArgs {
+    ncode?: string;
+    beginEp: number;
+    endEp: number;
+    isForce: boolean;
+    isAll: boolean;
+}
