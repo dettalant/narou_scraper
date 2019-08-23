@@ -198,7 +198,7 @@ export const run = async (ncode: string, initArgs?: InitArgs): Promise<NovelData
 
   // 取得エピソード番号を改めて設定
   const episodes = genRetrieveEpisodes(args, maxEpisode, cacheNData);
-  console.log(episodes);
+
   const nData = await scrapeNovel(page, ncode, episodes, cacheNData);
 
   // キャッシュファイルを保存する
