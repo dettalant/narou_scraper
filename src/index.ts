@@ -112,7 +112,7 @@ const scrapeNovel = async (page: puppeteer.Page, ncode: string, episodes: number
   Array.prototype.push.apply(result.episodes, episodes);
 
   // 追加した値のソート
-  result.episodes.sort();
+  result.episodes.sort((a, b) => a - b);
   result.data.sort((a, b) => {
     return a.episode - b.episode;
   })
