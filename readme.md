@@ -17,7 +17,21 @@ gitリポジトリを取り込む機能がnpmやyarnには存在するので、�
 const narouScraper = require("narou_scraper");
 
 (async () => {
-  const nData = await narouScraper.run("n7682fj", 1, 3);
+  const ncode = "n7682fj";
+  const initArgs = {
+    // ncodeは省略しても良い
+    ncode: ncode,
+    // 開始エピソード番号
+    beginEp: 1,
+    // 終了エピソード番号
+    endEp: 3,
+    // キャッシュを無視する設定値
+    isForce: false,
+    // 小説の全話数を読み取る設定値
+    isAll: false,
+  }
+  const nData = await narouScraper.run(ncode, initArgs);
+  
   console.log(nData);
   // 標準出力へと1話から3話までの小説データが出されるはず
 })()
