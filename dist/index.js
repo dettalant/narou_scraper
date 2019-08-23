@@ -68,7 +68,6 @@ const scrapeNovel = async (page, ncode, episodes, cacheNData) => {
         data: [],
         episodes: []
     };
-    const endEp = episodes[episodes.length - 1];
     // 小説取得処理
     let cnt = 1;
     const episodesLen = episodes.length;
@@ -163,6 +162,7 @@ exports.run = async (ncode, initArgs) => {
     }
     // 取得エピソード番号を改めて設定
     const episodes = utils_1.genRetrieveEpisodes(args, maxEpisode, cacheNData);
+    console.log(episodes);
     const nData = await scrapeNovel(page, ncode, episodes, cacheNData);
     // キャッシュファイルを保存する
     if (cacheObj.dirPath !== "" && cacheObj.filePath !== "") {
