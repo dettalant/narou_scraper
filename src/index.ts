@@ -97,8 +97,10 @@ const scrapeNovel = async (page: puppeteer.Page, ncode: string, episodes: number
   const endEp = episodes[episodes.length - 1];
 
   // 小説取得処理
+  let cnt = 1;
+  const episodesLen = episodes.length;
   for (let i of episodes) {
-    print_log(`${i}部分取得開始 ${i}/${endEp}`)
+    print_log(`${i}部分取得開始 ${cnt++}/${episodesLen}`)
     const url = `https://ncode.syosetu.com/${ncode}/${i}/`;
     result.data.push(await scrapePage(page, url));
 
