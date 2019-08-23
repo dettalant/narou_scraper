@@ -12,7 +12,7 @@ import {
 import {
   NovelData,
   NovelEpisodeData,
-  NarouApiNovelData,
+  NarouApiNovelAllEpisodesData,
   InitArgs,
 } from "./interfaces";
 
@@ -28,8 +28,8 @@ export * from "./interfaces";
  * @param  ncode 取得する小説のNコード
  * @return       Promiseに包まれた取得object
  */
-const getNarouApiJson = async (page: puppeteer.Page, ncode: string): Promise<NarouApiNovelData> => {
-  const url = "https://api.syosetu.com/novelapi/api/?libtype=2&out=json&ncode=" + ncode;
+const getNarouApiJson = async (page: puppeteer.Page, ncode: string): Promise<NarouApiNovelAllEpisodesData> => {
+  const url = "https://api.syosetu.com/novelapi/api/?libtype=2&out=json&of=ga&ncode=" + ncode;
   await page.goto(url);
   const json = await page.evaluate(() => JSON.parse(document.body.textContent || "{}"));
   return json[1];

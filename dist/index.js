@@ -14,7 +14,7 @@ const utils_1 = require("./utils");
  * @return       Promiseに包まれた取得object
  */
 const getNarouApiJson = async (page, ncode) => {
-    const url = "https://api.syosetu.com/novelapi/api/?libtype=2&out=json&ncode=" + ncode;
+    const url = "https://api.syosetu.com/novelapi/api/?libtype=2&out=json&of=ga&ncode=" + ncode;
     await page.goto(url);
     const json = await page.evaluate(() => JSON.parse(document.body.textContent || "{}"));
     return json[1];
@@ -118,19 +118,8 @@ exports.run = async (ncode, initArgs) => {
     const page = await utils_1.initPage();
     const nApiJson = await getNarouApiJson(page, ncode);
     const maxEpisode = nApiJson.general_all_no;
-    if (args.isAll) {
-        // 全エピソードを読み込む場合
-        args.beginEp = 1;
-        args.endEp = maxEpisode;
-    }
-    else if (args.beginEp > maxEpisode) {
-        // beginEpが最大値より大きい場合は最新エピソードのみ読み込む
-        [args.beginEp, args.endEp] = [maxEpisode, maxEpisode];
-    }
-    else if (args.endEp > maxEpisode) {
-        // endEpが最大数より多いならば最大数に合わせる
-        args.endEp = maxEpisode;
-    }
+    // 取得エピソード番号を改めて設定
+    utils_1.setRetrieveEpisodes(args, maxEpisode);
     // TODO: キャッシュ処理をまた後で作る
     // const cachePath = `${ncode}.json`;
     // const cacheNData = readCache(cachePath);

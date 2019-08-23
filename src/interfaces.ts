@@ -21,39 +21,48 @@ export interface NovelData {
 
 /**
  * なろうAPIが返す小説個々のデータ
+ * NOTE: 現在は使用していないのでコメントアウト
  */
-export interface NarouApiNovelData {
-  title: string;
-  ncode: string;
-  userid: number;
-  story: string;
-  biggenre: number;
-  gensaku: string;
-  keyword: string;
-  general_firstup: string;
-  general_lastup: string;
+// export interface NarouApiNovelData {
+//   title: string;
+//   ncode: string;
+//   userid: number;
+//   story: string;
+//   biggenre: number;
+//   gensaku: string;
+//   keyword: string;
+//   general_firstup: string;
+//   general_lastup: string;
+//   general_all_no: number;
+//   novel_type: number;
+//   end: number;
+//   length: number;
+//   time: number;
+//   isstop: boolean;
+//   isr15: boolean;
+//   isbl: boolean;
+//   isgl: boolean;
+//   iszankoku: boolean;
+//   istensei: boolean;
+//   istenni: boolean;
+//   pc_or_k: number;
+//   global_point: number;
+//   fav_novel_cnt: number;
+//   review_cnt: number;
+//   all_point: number;
+//   all_hyoka_cnt: number;
+//   sasie_cnt: number;
+//   kaiwaritu: number;
+//   novelupdated_at: string;
+//   updated_at: string;
+// }
+
+/**
+ * なろうAPIが返す小説個々のデータから
+ * 全話数だけ抽出したもの
+ */
+export interface NarouApiNovelAllEpisodesData {
   general_all_no: number;
-  novel_type: number;
-  end: number;
-  length: number;
-  time: number;
-  isstop: boolean;
-  isr15: boolean;
-  isbl: boolean;
-  isgl: boolean;
-  iszankoku: boolean;
-  istensei: boolean;
-  istenni: boolean;
-  pc_or_k: number;
-  global_point: number;
-  fav_novel_cnt: number;
-  review_cnt: number;
-  all_point: number;
-  all_hyoka_cnt: number;
-  sasie_cnt: number;
-  kaiwaritu: number;
-  novelupdated_at: string;
-  updated_at: string;
 }
 
 // narou_scraper.run()関数が要求する起動引数

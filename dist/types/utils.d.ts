@@ -1,4 +1,5 @@
 import puppeteer from "puppeteer";
+import { InitArgs } from "./interfaces";
 export declare const sleep: (ms: number) => Promise<Function>;
 export declare const roughlyNum: (num: number) => number;
 /**
@@ -25,3 +26,9 @@ export declare const print_log: (str: string) => void;
  * @return       連番が入った配列
  */
 export declare const range: (begin: number, end: number) => number[];
+/**
+ * 取得するエピソードを小説最大数などに応じて調整する
+ * @param  args       run()関数の起動引数オブジェクト
+ * @param  maxEpisode 小説の取得可能最大話数
+ */
+export declare const setRetrieveEpisodes: (args: InitArgs, maxEpisode: number) => void;
