@@ -94,8 +94,6 @@ const scrapeNovel = async (page: puppeteer.Page, ncode: string, episodes: number
     episodes: []
   };
 
-  const endEp = episodes[episodes.length - 1];
-
   // 小説取得処理
   let cnt = 1;
   const episodesLen = episodes.length;

@@ -2,6 +2,12 @@
 const narouScraper = require("../dist/index.js");
 
 (async () => {
-  const nData = await narouScraper.run("n7682fj", 1, 3);
+  const nData = await narouScraper.run("n7682fj", {
+    ncode: "n7682fj",
+    beginEp: 15,
+    endEp: 17,
+    isForce: false,
+    isAll: false,
+  });
   console.log(nData);
 })()
