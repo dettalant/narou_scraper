@@ -7,6 +7,7 @@ import {
   print_log,
   range,
   roughlyNum,
+  setRetrieveEpisodes,
 } from "./utils";
 import {
   NovelData,
@@ -148,17 +149,9 @@ export const run = async (ncode: string, initArgs?: InitArgs): Promise<NovelData
   const page = await initPage();
   const nApiJson = await getNarouApiJson(page, ncode);
   const maxEpisode = nApiJson.general_all_no;
-  if (args.isAll) {
-    // 全エピソードを読み込む場合
-    args.beginEp = 1;
-    args.endEp = maxEpisode;
-  } else if (args.beginEp > maxEpisode) {
-    // beginEpが最大値より大きい場合は最新エピソードのみ読み込む
-    [args.beginEp, args.endEp] = [maxEpisode, maxEpisode];
-  } else if (args.endEp > maxEpisode) {
-    // endEpが最大数より多いならば最大数に合わせる
-    args.endEp = maxEpisode;
-  }
+
+  // 取得エピソード番号を改めて設定
+  setRetrieveEpisodes(args, maxEpisode);
 
   // TODO: キャッシュ処理をまた後で作る
   // const cachePath = `${ncode}.json`;

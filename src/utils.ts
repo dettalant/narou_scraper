@@ -1,4 +1,5 @@
 import puppeteer from "puppeteer";
+import { InitArgs } from "./interfaces";
 
 // 入力したミリセコンド秒数分ウェイトを取る
 export const sleep = (ms: number) => new Promise<Function>((res) => setTimeout(res, ms))
@@ -43,4 +44,23 @@ export const print_log = (str: string) => {
  */
 export const range = (begin: number, end: number): number[] => {
   return [...Array(end - begin + 1)].map((_, i) => begin + i)
+}
+
+/**
+ * 取得するエピソードを小説最大数などに応じて調整する
+ * @param  args       run()関数の起動引数オブジェクト
+ * @param  maxEpisode 小説の取得可能最大話数
+ */
+export const setRetrieveEpisodes = (args: InitArgs, maxEpisode: number) => {
+  if (args.isAll) {
+    // 全エピソードを読み込む場合
+    args.beginEp = 1;
+    args.endEp = maxEpisode;
+  } else if (args.beginEp > maxEpisode) {
+    // beginEpが最大値より大きい場合は最新エピソードのみ読み込む
+    [args.beginEp, args.endEp] = [maxEpisode, maxEpisode];
+  } else if (args.endEp > maxEpisode) {
+    // endEpが最大数より多いならば最大数に合わせる
+    args.endEp = maxEpisode;
+  }
 }
