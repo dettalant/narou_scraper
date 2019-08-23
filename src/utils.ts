@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
-import { InitArgs } from "./interfaces";
+import fs from "fs";
+import { InitArgs, NovelData } from "./interfaces";
 
 // 入力したミリセコンド秒数分ウェイトを取る
 export const sleep = (ms: number) => new Promise<Function>((res) => setTimeout(res, ms))
@@ -47,20 +48,57 @@ export const range = (begin: number, end: number): number[] => {
 }
 
 /**
- * 取得するエピソードを小説最大数などに応じて調整する
+ * 取得するエピソードを小説最大数などに応じて調整し、その範囲が格納された配列を返す
  * @param  args       run()関数の起動引数オブジェクト
  * @param  maxEpisode 小説の取得可能最大話数
+ * @param  cacheNData 取得小説キャッシュデータ。これの中に存在する話は取得しない
+ * @return            取得する小説話数が含まれた配列
  */
-export const setRetrieveEpisodes = (args: InitArgs, maxEpisode: number) => {
+export const genRetrieveEpisodes = (args: InitArgs, maxEpisode: number, cacheNData?: NovelData): number[] => {
+  let beginEp = args.beginEp;
+  let endEp = (beginEp < args.endEp) ? args.endEp : beginEp;
+
   if (args.isAll) {
     // 全エピソードを読み込む場合
-    args.beginEp = 1;
-    args.endEp = maxEpisode;
-  } else if (args.beginEp > maxEpisode) {
+    beginEp = 1;
+    endEp = maxEpisode;
+  } else if (beginEp > maxEpisode) {
     // beginEpが最大値より大きい場合は最新エピソードのみ読み込む
-    [args.beginEp, args.endEp] = [maxEpisode, maxEpisode];
-  } else if (args.endEp > maxEpisode) {
+    [beginEp, endEp] = [maxEpisode, maxEpisode];
+  } else if (endEp > maxEpisode) {
     // endEpが最大数より多いならば最大数に合わせる
-    args.endEp = maxEpisode;
+    endEp = maxEpisode;
+  }
+
+  const result = (cacheNData)
+    ? range(beginEp, endEp).filter(ep => !cacheNData.episodes.includes(ep))
+    : range(beginEp, endEp);
+
+  return result;
+}
+
+/**
+ * 再帰的にmkdirSyncを行う
+ * 要するに`mkdir -p`コマンドと同じ。
+ * @param  fullPath  再帰的に作るフォルダーpath
+ */
+export const mkdirSyncAll = (fullPath: string) => {
+
+  const mkdir = (path: string) => {
+    try {
+      fs.accessSync(path);
+      // 読み取り成功したので処理スキップ
+    } catch (_) {
+      // 読み取り失敗 == 当該フォルダなし
+      // そのフォルダを作成する
+      fs.mkdirSync(path)
+    }
+  }
+
+  let p = "/";
+  for (let pathStr of fullPath.split("/")) {
+    if (pathStr === "") continue;
+    p += pathStr + "/";
+    mkdir(p);
   }
 }

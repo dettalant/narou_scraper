@@ -1,13 +1,14 @@
 import fs from "fs";
+import path from "path";
 import puppeteer from "puppeteer";
 import {
   initPage,
   closePage,
   sleep,
   print_log,
-  range,
   roughlyNum,
-  setRetrieveEpisodes,
+  genRetrieveEpisodes,
+  mkdirSyncAll,
 } from "./utils";
 import {
   NovelData,
@@ -80,33 +81,43 @@ const scrapePage = async (page: puppeteer.Page, url: string): Promise<NovelEpiso
 
 /**
  * Nコードと取得エピソード数から、小説家になろうに投稿された小説の内容を取得する
- * @param page         puppeteerのPageオブジェクト
- * @param ncode        取得する小説のNコード
- * @param beginEpisode 取得し始めるエピソード番号
- * @param endEpisode   最後に取得するエピソード番号（未指定ならばbeginEpisodeだけ取得）
- * @return             取得した小説情報のオブジェクト
+ * @param page       puppeteerのPageオブジェクト
+ * @param ncode      取得する小説のNコード
+ * @param episodes   取得する小説話数が格納された配列
+ * @param cacheNdata 過去に取得した小説情報のキャッシュオブジェクト
+ * @return           取得した小説情報のオブジェクト
  */
-const scrapeNovel = async (page: puppeteer.Page, ncode: string, beginEpisode: number, endEpisode?: number): Promise<NovelData> => {
-  if (endEpisode === void 0 || beginEpisode > endEpisode) {
-    endEpisode = beginEpisode;
-  }
+const scrapeNovel = async (page: puppeteer.Page, ncode: string, episodes: number[], cacheNData?: NovelData): Promise<NovelData> => {
+  const result = (cacheNData) ? cacheNData : {
+    ncode: ncode,
+    data: [],
+    episodes: []
+  };
 
-  const data: NovelEpisodeData[] = [];
-  for (let i = beginEpisode; i <= endEpisode; i++) {
-    print_log(`${i}部分取得開始 ${i}/${endEpisode}`)
+  const endEp = episodes[episodes.length - 1];
+
+  // 小説取得処理
+  for (let i of episodes) {
+    print_log(`${i}部分取得開始 ${i}/${endEp}`)
     const url = `https://ncode.syosetu.com/${ncode}/${i}/`;
-    data.push(await scrapePage(page, url));
+    result.data.push(await scrapePage(page, url));
 
     // なろうのサーバーへの思いやりウェイトを取る
     const sleepMs = roughlyNum(1000);
     await sleep(sleepMs);
   }
 
-  return {
-    ncode,
-    data,
-    episodes: range(beginEpisode, endEpisode),
-  }
+  // つつがなく小説取得が終了したなら、
+  // 取得エピソードをresult.episodesへと結合
+  Array.prototype.push.apply(result.episodes, episodes);
+
+  // 追加した値のソート
+  result.episodes.sort();
+  result.data.sort((a, b) => {
+    return a.episode - b.episode;
+  })
+
+  return result;
 }
 
 /**
@@ -115,11 +126,12 @@ const scrapeNovel = async (page: puppeteer.Page, ncode: string, beginEpisode: nu
  * @param  path   キャッシュファイルの場所
  * @return        読み取ったstring
  */
-const readCache = (path: string): string => {
-  let result = "";
+const readCache = (path: string): NovelData | undefined => {
+  let result;
 
   try {
-    result = fs.readFileSync(path, "utf8");
+    const str = fs.readFileSync(path, "utf8");
+    result = JSON.parse(str) as NovelData;
     print_log(`キャッシュファイル取得 ${path}`);
   } catch (e) {
     if (e.code === "ENOENT") {
@@ -150,19 +162,50 @@ export const run = async (ncode: string, initArgs?: InitArgs): Promise<NovelData
   const nApiJson = await getNarouApiJson(page, ncode);
   const maxEpisode = nApiJson.general_all_no;
 
+  // キャッシュファイルなどのpathを入れるobject
+  const cacheObj = {
+    dirPath: "",
+    filePath: "",
+  };
+
+  // NOTE: windowsなどのフォルダー構造わからんちんなので
+  //       linux以外ではキャッシュ処理を動かさない
+  if (!args.isForce && process.platform === "linux") {
+    // おそらくこれで$HOMEが取れると思われるけれど、
+    // もしなんらかの事情で$HOMEが取れなければカレントディレクトリを用いる
+    const home = process.env.HOME || path.resolve("");
+    cacheObj.dirPath = path.join(home, ".cache", "narou_scraper", ncode.toLowerCase());
+    cacheObj.filePath = path.join(cacheObj.dirPath, "novel_cache.json");
+
+    print_log("キャッシュ使用設定を有効化");
+  } else if (args.isForce) {
+    print_log("起動引数設定値に基づき、キャッシュ使用設定を無効化")
+  } else {
+    print_log("linux以外のOSでは小説キャッシュ機能は使用されません");
+  }
+
+  // キャッシュの取得を試みる
+  let cacheNData;
+  if (cacheObj.filePath !== "") {
+    cacheNData = readCache(cacheObj.filePath);
+  }
+
   // 取得エピソード番号を改めて設定
-  setRetrieveEpisodes(args, maxEpisode);
+  const episodes = genRetrieveEpisodes(args, maxEpisode, cacheNData);
+  const nData = await scrapeNovel(page, ncode, episodes, cacheNData);
 
-  // TODO: キャッシュ処理をまた後で作る
-  // const cachePath = `${ncode}.json`;
-  // const cacheNData = readCache(cachePath);
-  // console.log(`ncode: ${ncode}, beginEp: ${beginEp}, endEp: ${endEp}`);
-  // console.log(cacheNData);
+  // キャッシュファイルを保存する
+  if (cacheObj.dirPath !== "" && cacheObj.filePath !== "") {
+    // 保存フォルダにアクセスして、
+    // 当該フォルダが無ければ再帰的にフォルダ作成する
+    try {
+      fs.accessSync(cacheObj.dirPath, fs.constants.R_OK | fs.constants.W_OK);
+    } catch (_) {
+      mkdirSyncAll(cacheObj.dirPath);
+    }
 
-  const nData = await scrapeNovel(page, ncode, args.beginEp, args.endEp);
-
-  // TODO: ここもキャッシュ処理用の部分
-  // fs.writeFileSync(cachePath, JSON.stringify(nData, null, 1));
+    fs.writeFileSync(cacheObj.filePath, JSON.stringify(nData, null, 1));
+  }
 
   await closePage(page);
   return nData

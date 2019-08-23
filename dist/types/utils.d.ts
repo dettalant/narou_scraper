@@ -1,5 +1,5 @@
 import puppeteer from "puppeteer";
-import { InitArgs } from "./interfaces";
+import { InitArgs, NovelData } from "./interfaces";
 export declare const sleep: (ms: number) => Promise<Function>;
 export declare const roughlyNum: (num: number) => number;
 /**
@@ -27,8 +27,16 @@ export declare const print_log: (str: string) => void;
  */
 export declare const range: (begin: number, end: number) => number[];
 /**
- * 取得するエピソードを小説最大数などに応じて調整する
+ * 取得するエピソードを小説最大数などに応じて調整し、その範囲が格納された配列を返す
  * @param  args       run()関数の起動引数オブジェクト
  * @param  maxEpisode 小説の取得可能最大話数
+ * @param  cacheNData 取得小説キャッシュデータ。これの中に存在する話は取得しない
+ * @return            取得する小説話数が含まれた配列
  */
-export declare const setRetrieveEpisodes: (args: InitArgs, maxEpisode: number) => void;
+export declare const genRetrieveEpisodes: (args: InitArgs, maxEpisode: number, cacheNData?: NovelData | undefined) => number[];
+/**
+ * 再帰的にmkdirSyncを行う
+ * 要するに`mkdir -p`コマンドと同じ。
+ * @param  fullPath  再帰的に作るフォルダーpath
+ */
+export declare const mkdirSyncAll: (fullPath: string) => void;
